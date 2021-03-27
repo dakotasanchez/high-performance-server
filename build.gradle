@@ -1,0 +1,40 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:6.1.0'
+    }
+}
+
+plugins {
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+    id 'java'
+    id 'application'
+    id 'idea'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    implementation 'org.apache.logging.log4j:log4j-api:2.7'
+    implementation 'org.apache.logging.log4j:log4j-core:2.7'
+    implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.7'
+
+    testCompile 'junit:junit:4.12'
+}
+
+mainClassName = 'com.sanchez.server.Main'
+
+shadowJar {
+    archiveBaseName.set('sanchez-server')
+    archiveClassifier.set('')
+    archiveVersion.set('')
+    manifest {
+        attributes 'Description': 'High performance server application JAR'
+    }
+}
+
+
