@@ -1,6 +1,5 @@
 package com.sanchez.server;
 
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -8,7 +7,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 class NumberReporter extends Reporter {
 
-    private final ConcurrentHashMap.KeySetView<Integer, Boolean> uniqueNumbers;
+    private final NumberTracker processedNumbers;
     private final AtomicLong duplicates;
 
     private long lastNumberCount;
@@ -16,17 +15,17 @@ class NumberReporter extends Reporter {
 
     /**
      *
-     * @param uniqueNumbers Thread-safe hash set (created from ConcurrentHashMap) to track duplicate data from all connections.
+     * @param processedNumbers Thread-safe tracker to track "seen" data from all connections.
      * @param duplicates Thread-safe counter for counting the number of duplicates encountered.
      */
-    NumberReporter(ConcurrentHashMap.KeySetView<Integer, Boolean> uniqueNumbers, AtomicLong duplicates) {
-        this.uniqueNumbers = uniqueNumbers;
+    NumberReporter(final NumberTracker processedNumbers, final AtomicLong duplicates) {
+        this.processedNumbers = processedNumbers;
         this.duplicates = duplicates;
     }
 
     @Override
     void report() {
-        long totalUniqueCount = uniqueNumbers.size();
+        long totalUniqueCount = processedNumbers.getNumbersProcessed();
         long totalDuplicateCount = duplicates.get();
         long newUniqueCount = totalUniqueCount - lastNumberCount;
         long newDuplicateCount = totalDuplicateCount - lastDuplicateCount;

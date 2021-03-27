@@ -3,8 +3,14 @@ package com.sanchez.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -17,11 +23,14 @@ class Server implements Runnable {
     private static final int EXTRA_THREADS = 3;
     // Default producer-consumer data queue capacity
     private static final int QUEUE_CAPACITY = 100_000;
+    // Maximum allowed number
+    private static final int MAX_NUMBER = 1_000_000_000;
     // Length of incoming data lines (9 digit numbers)
     private static final int DATA_LINE_LENGTH = 9;
 
     private final List<Future<Boolean>> results = new ArrayList<>();
-    private final ConcurrentHashMap.KeySetView<Integer, Boolean> writtenNumbers = ConcurrentHashMap.newKeySet();
+
+    private final NumberTracker processedNumbers = new NumberTracker(new BitSet(MAX_NUMBER));
     private final AtomicLong duplicates = new AtomicLong();
     private final BlockingQueue<Integer> dataQueue = new ArrayBlockingQueue<>(QUEUE_CAPACITY);
 
@@ -31,7 +40,7 @@ class Server implements Runnable {
 
     private ServerSocket serverSocket;
     private ConnectionMonitor connectionMonitor;
-    private LogWriter logWriter;
+    private LogWriter<Integer> logWriter;
     private Reporter reporter;
 
     /**
@@ -44,6 +53,7 @@ class Server implements Runnable {
         this.port = port;
         this.logFilePath = logFilePath;
         this.executorService = Executors.newFixedThreadPool(connections + EXTRA_THREADS);
+
     }
 
     /**
@@ -64,7 +74,7 @@ class Server implements Runnable {
             serverSocket = new ServerSocket(port);
 
             connectionMonitor = new ConnectionMonitor(this, results);
-            reporter = new NumberReporter(writtenNumbers, duplicates);
+            reporter = new NumberReporter(processedNumbers, duplicates);
             logWriter = new LogWriter<>(logFilePath, dataQueue);
 
             executorService.execute(connectionMonitor);
@@ -74,7 +84,7 @@ class Server implements Runnable {
             while (true) {
                 Connection workerThread =
                         new NumberConnection(serverSocket.accept(),
-                                writtenNumbers,
+                                processedNumbers,
                                 duplicates,
                                 dataQueue,
                                 DATA_LINE_LENGTH);
@@ -87,7 +97,7 @@ class Server implements Runnable {
         } catch (Exception e) {
             System.out.println("Shutting down server...");
             shutdownExecutorService();
-            System.out.println("Final unique count: " + writtenNumbers.size());
+            System.out.println("Final unique count: " + processedNumbers.getNumbersProcessed());
         }
     }
 
