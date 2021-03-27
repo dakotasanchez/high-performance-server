@@ -10,10 +10,12 @@ numbers.log and duplicate numbers are discarded. Every 10 seconds a report
 is printed to stdout showing deltas for the count of unique and duplicate numbers,
 in addition to the total number of unique numbers.
 
-The average observed throughput is about 5M numbers per 10-second reporting period. Memory usage should
-sit steady at around 1GB, mainly because of duplicate tracking.
+The average observed throughput is about 500K numbers per second, but the bottleneck could live in
+the client. Memory usage should sit steady at around 1GB, mainly because of duplicate tracking.
 
 Testing machine: 8GB RAM, 2.3GHz Intel i5, 256GB SSD.
+
+![test run](screenshot.png "Test Run")
 
 # Building and running
 
