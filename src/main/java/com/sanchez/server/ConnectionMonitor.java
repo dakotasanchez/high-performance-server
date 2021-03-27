@@ -1,14 +1,16 @@
 package com.sanchez.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Class to monitor a list of Future<Boolean> results returned from client connections.
- */
 class ConnectionMonitor implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConnectionMonitor.class);
 
     private volatile boolean stopped;
 
@@ -16,13 +18,14 @@ class ConnectionMonitor implements Runnable {
     private final List<Future<Boolean>> results;
 
     /**
+     * Class to monitor a list of Future<Boolean> results returned from client connections.
      *
      * @param server Reference to server to issue a shutdown.
      * @param results List of results from connection.
      *      TRUE: connection encountered terminate request from client
      *      FALSE: connection did not encounter terminate request
      */
-    ConnectionMonitor(Server server, List<Future<Boolean>> results) {
+    public ConnectionMonitor(final Server server, final List<Future<Boolean>> results) {
         this.server = server;
         this.results = results;
     }
@@ -35,7 +38,7 @@ class ConnectionMonitor implements Runnable {
             while (!stopped && !encounteredClientTerminate) {
                 TimeUnit.SECONDS.sleep(1);
 
-                List<Future<Boolean>> toRemove = new ArrayList<>();
+                final List<Future<Boolean>> toRemove = new ArrayList<>();
 
                 synchronized (results) {
                     for (Future<Boolean> result : results) {
@@ -52,16 +55,16 @@ class ConnectionMonitor implements Runnable {
             }
         } catch (Exception e) {
             if (!(e instanceof InterruptedException)) {
-                e.printStackTrace();
+                logger.error("Encountered unexpected exception: ", e);
             }
         }
         if (encounteredClientTerminate) {
-            System.out.println("ConnectionMonitor encountered client terminate request.");
+            logger.info("ConnectionMonitor encountered client terminate request.");
         }
         server.shutdown();
     }
 
-    void stop() {
+    public void stop() {
         stopped = true;
     }
 }

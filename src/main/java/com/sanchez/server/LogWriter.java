@@ -1,16 +1,20 @@
 package com.sanchez.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * Generic class to write data from a Queue separated by newlines to a file.
- *
  * @param <T> Type of data inside thread-safe queue
  */
 class LogWriter<T> implements Runnable {
+
+    private static final Logger logger = LoggerFactory.getLogger(LogWriter.class);
 
     private volatile boolean stopped;
 
@@ -18,23 +22,24 @@ class LogWriter<T> implements Runnable {
     private final BlockingQueue<T> dataQueue;
 
     /**
+     * Generic class to write data from a Queue separated by newlines to a file.
      *
      * @param logFilePath File path to be written to.
      * @param dataQueue Thread-safe queue to drain data from and write to file.
      */
-    LogWriter(String logFilePath, BlockingQueue<T> dataQueue) {
+    public LogWriter(final String logFilePath, final BlockingQueue<T> dataQueue) {
         this.logFilePath = logFilePath;
         this.dataQueue = dataQueue;
     }
 
     @Override
     public void run() {
-        try (BufferedWriter writer =
-                     new BufferedWriter(new OutputStreamWriter(new FileOutputStream(logFilePath), "UTF-8"))) {
-            List<T> drain = new ArrayList<>();
+        try (final BufferedWriter writer =
+                     new BufferedWriter(new OutputStreamWriter(new FileOutputStream(logFilePath), StandardCharsets.UTF_8))) {
+            final List<T> drain = new ArrayList<>();
             while (!stopped) {
                 dataQueue.drainTo(drain);
-                for (T data : drain) {
+                for (final T data : drain) {
                     writer.write(data.toString());
                     writer.newLine();
                 }
@@ -42,11 +47,11 @@ class LogWriter<T> implements Runnable {
                 writer.flush();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while draining data to disk: ", e);
         }
     }
 
-    void stop() {
+    public void stop() {
         stopped = true;
     }
 }

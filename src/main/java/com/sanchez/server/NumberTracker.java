@@ -2,13 +2,13 @@ package com.sanchez.server;
 
 import java.util.BitSet;
 
-/**
- * Keeps track of seen/processed numbers.
- */
 public class NumberTracker {
 
     private final BitSet processedNumbers;
 
+    /**
+     * Keeps track of seen/processed numbers.
+     */
     public NumberTracker(final BitSet processedNumbers) {
         this.processedNumbers = processedNumbers;
     }

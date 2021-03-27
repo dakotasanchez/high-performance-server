@@ -2,9 +2,6 @@ package com.sanchez.server;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Concrete implementation of Reporter that reports current unique/duplicate number data from all clients.
- */
 class NumberReporter extends Reporter {
 
     private final NumberTracker processedNumbers;
@@ -14,23 +11,24 @@ class NumberReporter extends Reporter {
     private long lastDuplicateCount;
 
     /**
+     * Concrete implementation of {@link Reporter} that reports current unique/duplicate number data from all clients.
      *
      * @param processedNumbers Thread-safe tracker to track "seen" data from all connections.
      * @param duplicates Thread-safe counter for counting the number of duplicates encountered.
      */
-    NumberReporter(final NumberTracker processedNumbers, final AtomicLong duplicates) {
+    public NumberReporter(final NumberTracker processedNumbers, final AtomicLong duplicates) {
         this.processedNumbers = processedNumbers;
         this.duplicates = duplicates;
     }
 
     @Override
-    void report() {
-        long totalUniqueCount = processedNumbers.getNumbersProcessed();
-        long totalDuplicateCount = duplicates.get();
-        long newUniqueCount = totalUniqueCount - lastNumberCount;
-        long newDuplicateCount = totalDuplicateCount - lastDuplicateCount;
+    public void report() {
+        final long totalUniqueCount = processedNumbers.getNumbersProcessed();
+        final long totalDuplicateCount = duplicates.get();
+        final long newUniqueCount = totalUniqueCount - lastNumberCount;
+        final long newDuplicateCount = totalDuplicateCount - lastDuplicateCount;
 
-        System.out.println("Received " + newUniqueCount + " unique numbers, " + newDuplicateCount +
+        logger.info("Received " + newUniqueCount + " unique numbers, " + newDuplicateCount +
                 " duplicates. Unique total: " + totalUniqueCount);
 
         lastNumberCount = totalUniqueCount;

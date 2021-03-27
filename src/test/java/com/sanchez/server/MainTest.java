@@ -26,8 +26,8 @@ public class MainTest {
     public void setUp() {
         serverExecutor = Executors.newSingleThreadExecutor();
         try {
-            int connections = 5;
-            String logFile = "numbers.log";
+            final int connections = 5;
+            final String logFile = "numbers.log";
 
             server = new Server(HOST_PORT, connections, logFile);
             serverExecutor.submit(server);
@@ -45,13 +45,13 @@ public class MainTest {
 
     @Test
     public void testDuplicates() throws InterruptedException, IOException {
-        ExecutorService duplicateExecutor = Executors.newSingleThreadExecutor();
+        final ExecutorService duplicateExecutor = Executors.newSingleThreadExecutor();
         duplicateExecutor.submit(new DuplicateNumberClient(HOST, HOST_PORT));
         TimeUnit.SECONDS.sleep(5);
         stopExecutorService(duplicateExecutor);
 
-        File file = new File(logFilePath);
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        final File file = new File(logFilePath);
+        try (final BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line = reader.readLine();
             if (!line.equals("999999999")) {
                 fail("Incorrect file content");
@@ -68,9 +68,9 @@ public class MainTest {
 
     @Test
     public void testMoreThan5Clients() throws InterruptedException {
-        int threads = 6;
-        ExecutorService randomExecutor = Executors.newFixedThreadPool(threads);
-        List<RandomNumberClient> clients = new ArrayList<>();
+        final int threads = 6;
+        final ExecutorService randomExecutor = Executors.newFixedThreadPool(threads);
+        final List<RandomNumberClient> clients = new ArrayList<>();
 
         for (int i = 0; i < threads; i++) {
             clients.add(new RandomNumberClient(HOST, HOST_PORT, 500_000));
@@ -78,7 +78,7 @@ public class MainTest {
         randomExecutor.invokeAll(clients);
         stopExecutorService(randomExecutor);
 
-        File file = new File(logFilePath);
+        final File file = new File(logFilePath);
         if (!file.exists()) {
             fail("Log file was not created");
         }
@@ -86,10 +86,9 @@ public class MainTest {
 
     @Test
     public void testThroughput() throws InterruptedException {
-
-        int threads = 5;
-        ExecutorService randomExecutor = Executors.newFixedThreadPool(threads);
-        List<RandomNumberClient> clients = new ArrayList<>();
+        final int threads = 5;
+        final ExecutorService randomExecutor = Executors.newFixedThreadPool(threads);
+        final List<RandomNumberClient> clients = new ArrayList<>();
 
         for (int i = 0; i < threads; i++) {
             clients.add(new RandomNumberClient(HOST, HOST_PORT, 5_000_000));
@@ -98,7 +97,7 @@ public class MainTest {
         TimeUnit.SECONDS.sleep(5);
         stopExecutorService(randomExecutor);
 
-        File file = new File(logFilePath);
+        final File file = new File(logFilePath);
         if (!file.exists()) {
             fail("Log file was not created");
         }
@@ -106,7 +105,7 @@ public class MainTest {
 
     @Test
     public void testTerminate() throws InterruptedException {
-        ExecutorService terminateExecutor = Executors.newSingleThreadExecutor();
+        final ExecutorService terminateExecutor = Executors.newSingleThreadExecutor();
         terminateExecutor.submit(new TerminateClient(HOST, HOST_PORT));
         TimeUnit.SECONDS.sleep(5);
         stopExecutorService(terminateExecutor);

@@ -7,10 +7,10 @@ import java.util.concurrent.Callable;
 
 public class DuplicateNumberClient implements Callable<Boolean> {
 
-    private String host;
-    private int port;
+    private final String host;
+    private final int port;
 
-    DuplicateNumberClient(String host, int port) {
+    public DuplicateNumberClient(final String host, final int port) {
         this.host = host;
         this.port = port;
     }
@@ -18,8 +18,8 @@ public class DuplicateNumberClient implements Callable<Boolean> {
     @Override
     public Boolean call() {
         try (
-                Socket socket = new Socket(host, port);
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
+                final Socket socket = new Socket(host, port);
+                final PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
         ) {
             writer.println("999999999");
             writer.println("888888888");

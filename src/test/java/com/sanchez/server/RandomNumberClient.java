@@ -10,12 +10,12 @@ class RandomNumberClient implements Callable<Boolean> {
 
     private static final int MAX_RANDOM = 999_999_999;
 
-    private String host;
-    private int port;
+    private final String host;
+    private final int port;
+    private final long numbersToWrite;
     private long numbersWritten;
-    private long numbersToWrite;
 
-    RandomNumberClient(String host, int port, long numbersToWrite) {
+    public RandomNumberClient(final String host, final int port, final long numbersToWrite) {
         this.host = host;
         this.port = port;
         this.numbersToWrite = numbersToWrite;
@@ -24,13 +24,12 @@ class RandomNumberClient implements Callable<Boolean> {
     @Override
     public Boolean call() {
         try (
-                Socket socket = new Socket(host, port);
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
+                final Socket socket = new Socket(host, port);
+                final PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
         ) {
             while (numbersWritten < numbersToWrite) {
-                int random = ThreadLocalRandom.current().nextInt(MAX_RANDOM + 1);
-                String toWrite = String.format("%09d", random);
-                writer.println(toWrite);
+                final int random = ThreadLocalRandom.current().nextInt(MAX_RANDOM + 1);
+                writer.println(String.format("%09d", random));
                 numbersWritten++;
             }
 

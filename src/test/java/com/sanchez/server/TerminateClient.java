@@ -7,10 +7,10 @@ import java.util.concurrent.Callable;
 
 public class TerminateClient implements Callable<Boolean> {
 
-    private String host;
-    private int port;
+    private final String host;
+    private final int port;
 
-    TerminateClient(String host, int port) {
+    public TerminateClient(final String host, final int port) {
         this.host = host;
         this.port = port;
     }
@@ -18,8 +18,8 @@ public class TerminateClient implements Callable<Boolean> {
     @Override
     public Boolean call() {
         try (
-                Socket socket = new Socket(host, port);
-                PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
+                final Socket socket = new Socket(host, port);
+                final PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)
         ) {
             writer.println("terminate");
 

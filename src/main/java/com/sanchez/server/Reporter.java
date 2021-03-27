@@ -1,5 +1,8 @@
 package com.sanchez.server;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -7,9 +10,9 @@ import java.util.concurrent.TimeUnit;
  */
 abstract class Reporter implements Runnable {
 
-    private volatile boolean stopped;
+    protected static final Logger logger = LoggerFactory.getLogger(Reporter.class);
 
-    Reporter() {}
+    private volatile boolean stopped;
 
     @Override
     public void run() {
@@ -20,17 +23,17 @@ abstract class Reporter implements Runnable {
             }
         } catch (Exception e) {
             if (!(e instanceof InterruptedException)) {
-                e.printStackTrace();
+                logger.error("Unexpected exception: ", e);
             }
         }
     }
 
-    void stop() {
+    public void stop() {
         stopped = true;
     }
 
     /**
-     * Override to report data
+     * Override to report data.
      */
-    abstract void report();
+    public abstract void report();
 }

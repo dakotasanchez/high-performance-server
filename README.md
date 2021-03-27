@@ -1,4 +1,4 @@
-# High performance server example
+# High performance server example app
 
 This is an example of a server that consumes data from clients concurrently and logs the data in a high-performance fashion.
 The application can handle up to 5 concurrent clients on port 3000. The client(s) can write
@@ -10,22 +10,18 @@ numbers.log and duplicate numbers are discarded. Every 10 seconds a report
 is printed to stdout showing deltas for the count of unique and duplicate numbers,
 in addition to the total number of unique numbers.
 
-The average observed throughput is about 3-4M numbers per 10-second reporting period. Memory
-usage will increase linearly until about 15GB of memory is used. (999,999,999 Integer instances
-is the bulk of it). Memory usage could probably be decreased by locking around a primitive array of
-size 999,999,999 or something to keep track of duplicates, but I favored readability for this
-initial version.
+The average observed throughput is about 5M numbers per 10-second reporting period. Memory usage should
+sit steady at around 1GB, mainly because of duplicate tracking.
 
-Testing machine: 16GB RAM, 2.3GHz Intel i5, 256GB SSD.
+Testing machine: 8GB RAM, 2.3GHz Intel i5, 256GB SSD.
 
 # Building and running
 
-## IntelliJ Idea
+## IntelliJ IDEA
 
 Open the project folder in IntelliJ. Assuming IntelliJ is already configured with
 your JDK, running the server should be as simple as using the green arrow in the Main
-class or using the Run dropdown. Building is done through the Build dropdown. (Increase
-java heap memory through Help->Edit custom VM options.)
+class or using the Run dropdown. Building is done through the Build dropdown.
 
 ## Terminal
 
